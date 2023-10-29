@@ -1,4 +1,4 @@
-# anylist-cli
+# anylist_cli
 
 A CLI utilty for interacting with AnyList.
 
