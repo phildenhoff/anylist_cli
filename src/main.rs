@@ -2,8 +2,8 @@ mod commands;
 
 extern crate clap;
 
-use anylist_client::lists::get_lists;
-use anylist_client::login;
+use anylist_rs::lists::get_lists;
+use anylist_rs::login;
 use clap::{Arg, Command, SubCommand};
 use commands::login::login_subcommand;
 
