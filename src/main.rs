@@ -30,7 +30,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if let Some(matches) = matches.subcommand_matches("lists") {
         let signed_user_id = matches.value_of("signed_user_id").unwrap();
-        get_lists(signed_user_id).await?;
+        let lists = get_lists(signed_user_id).await?;
+        for list in lists {
+            println!("List: {}", list.name);
+            let all_item_names: String = list.items.iter().map(|item| item.name.as_str()).collect::<Vec<&str>>().join(", ");
+            println!("\t{}", all_item_names);
+        }
     }
 
     Ok(())
