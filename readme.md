@@ -1,6 +1,6 @@
 # anylist_cli
 
-A CLI utilty for interacting with AnyList.
+A CLI utilty for interacting with AnyList. Uses [anylist_rs](https://github.com/phildenhoff/anylist_rs).
 
 ## running
 
