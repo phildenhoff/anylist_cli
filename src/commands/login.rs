@@ -1,7 +1,8 @@
 extern crate clap;
-use clap::{Arg, Command, SubCommand};
+use anylist_rs::login;
+use clap::{Arg, ArgMatches, Command, SubCommand};
 
-pub fn login_subcommand() -> Command<'static> {
+pub fn command() -> Command<'static> {
     return SubCommand::with_name("login")
         .arg(
             Arg::with_name("email")
@@ -21,4 +22,11 @@ pub fn login_subcommand() -> Command<'static> {
                 .takes_value(true)
                 .required(true),
         );
+}
+
+pub async fn exec_command(matches: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
+    let email = matches.value_of("email").unwrap();
+    let password = matches.value_of("password").unwrap();
+    login::login(email, password).await?;
+    Ok(())
 }
