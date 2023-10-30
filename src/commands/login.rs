@@ -15,6 +15,10 @@ pub async fn exec_command(_matches: &ArgMatches) -> Result<(), Box<dyn std::erro
         .prompt()
         .unwrap();
 
-    login::login(email.as_str(), password.as_str()).await?;
+    match login::login(email.as_str(), password.as_str()).await {
+        Ok(result) => println!("Your auth credential is: \n{}", result.credential),
+        Err(_) => println!("Login failed."),
+    }
+
     Ok(())
 }
