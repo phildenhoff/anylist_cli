@@ -7,7 +7,7 @@ A CLI utilty for interacting with AnyList. Uses [anylist_rs](https://github.com/
 To get an signed user id:
 
 ```fish
-cargo run -- login --email <email> --password <password>
+cargo run -- login
 ```
 
 To view all your list names:
