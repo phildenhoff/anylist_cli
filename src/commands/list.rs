@@ -1,6 +1,8 @@
 use anylist_rs::lists::{self, List, ListItem};
 use clap::{Arg, ArgMatches, Command};
 
+use crate::auth::get_signed_user_id;
+
 struct FlagIds;
 impl FlagIds {
     const LIST_NAME: &'static str = "list_name";
@@ -47,11 +49,6 @@ pub fn command() -> Command<'static> {
         elements of one list, or adding an item to a list.
         ",
         )
-        .arg(
-            Arg::new("signed_user_id")
-                .required(true)
-                .help("The signed user id"),
-        )
         .subcommand(
             Command::new("get")
                 .about("Get a list.")
@@ -60,8 +57,8 @@ pub fn command() -> Command<'static> {
 }
 
 pub async fn exec_command(matches: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
-    let signed_user_id = matches.value_of("signed_user_id").unwrap();
-    let lists = lists::get_lists(signed_user_id).await?;
+    let signed_user_id = get_signed_user_id().unwrap();
+    let lists = lists::get_lists(signed_user_id.as_str()).await?;
 
     match matches.subcommand() {
         Some(("get", sub_matches)) => {

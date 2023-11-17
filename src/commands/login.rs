@@ -4,6 +4,8 @@ use anylist_rs::login;
 use clap::{ArgMatches, Command, SubCommand};
 use inquire::{Password, Text};
 
+use crate::auth::save_credentials;
+
 pub fn command() -> Command<'static> {
     return SubCommand::with_name("login")
 }
@@ -16,7 +18,10 @@ pub async fn exec_command(_matches: &ArgMatches) -> Result<(), Box<dyn std::erro
         .unwrap();
 
     match login::login(email.as_str(), password.as_str()).await {
-        Ok(result) => println!("Your auth credential is: \n{}", result.credential),
+        Ok(result) => {
+            println!("Your auth credential is: \n{}", result.credential);
+            save_credentials(result.credential.as_str()).unwrap();
+        }
         Err(_) => println!("Login failed."),
     }
 
