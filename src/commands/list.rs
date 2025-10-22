@@ -1,7 +1,10 @@
-use anylist_rs::lists::{self, List, ListItem};
+use anylist_rs::{
+    lists::{List, ListItem},
+    AnyListClient,
+};
 use clap::{Arg, ArgMatches, Command};
 
-use crate::auth::get_signed_user_id;
+use crate::auth::read_login;
 
 struct FlagIds;
 impl FlagIds {
@@ -44,7 +47,7 @@ pub fn command() -> Command<'static> {
         .long_about(
             "
         By default, this command will print out all of your lists and their items.
-        
+
         You can use the subcommands to perform other actions, like getting the
         elements of one list, or adding an item to a list.
         ",
@@ -57,8 +60,11 @@ pub fn command() -> Command<'static> {
 }
 
 pub async fn exec_command(matches: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
-    let signed_user_id = get_signed_user_id().unwrap();
-    let lists = lists::get_lists(signed_user_id.as_str()).await?;
+    let login = read_login()?;
+    let client =
+        AnyListClient::from_credentials(login.credential, login.user_id, login.is_premium_user);
+
+    let lists = client.get_lists().await?;
 
     match matches.subcommand() {
         Some(("get", sub_matches)) => {

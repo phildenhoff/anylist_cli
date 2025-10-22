@@ -1,5 +1,5 @@
-mod commands;
 mod auth;
+mod commands;
 
 extern crate clap;
 
