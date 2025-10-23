@@ -15,6 +15,7 @@ pub async fn exec_command(_matches: &ArgMatches) -> Result<(), CliError> {
         .prompt()?;
 
     let password = Password::new("Password:")
+        .with_display_mode(inquire::PasswordDisplayMode::Masked)
         .without_confirmation()
         .prompt()?;
 
