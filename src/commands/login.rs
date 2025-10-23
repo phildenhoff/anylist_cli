@@ -1,38 +1,33 @@
-extern crate clap;
-
 use anylist_rs::AnyListClient;
-use clap::{ArgMatches, Command, SubCommand};
+use clap::{ArgMatches, Command};
 use inquire::{Password, Text};
 
 use crate::auth::save_credentials;
+use crate::error::CliError;
 
-pub fn command() -> Command<'static> {
-    return SubCommand::with_name("login");
+pub fn command() -> Command {
+    Command::new("login")
+        .about("Login to your AnyList account")
 }
 
-pub async fn exec_command(_matches: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
-    let email = Text::new("Email: ").prompt().unwrap();
-    let password = Password::new("Password: ")
+pub async fn exec_command(_matches: &ArgMatches) -> Result<(), CliError> {
+    let email = Text::new("Email:")
+        .prompt()?;
+
+    let password = Password::new("Password:")
         .without_confirmation()
-        .prompt()
-        .unwrap();
+        .prompt()?;
 
-    let result = AnyListClient::login(&email, &password).await;
-
-    match result {
+    match AnyListClient::login(&email, &password).await {
         Ok(client) => {
-            println!("You're signed in! You can start using {} to read, create, and update your grocery lists!", env!("CARGO_BIN_NAME"));
-            println!("\nFor more info, see {} --help", env!("CARGO_BIN_NAME"));
-
             save_credentials(client)?;
+            println!("✓ Successfully logged in!");
+            println!("\nYou can now use {} to manage your AnyList lists.", env!("CARGO_BIN_NAME"));
+            println!("Try: {} list", env!("CARGO_BIN_NAME"));
+            Ok(())
         }
-
         Err(err) => {
-          dbg!(err);
-
-          println!("Login failed.")
+            Err(CliError::LoginFailed(format!("Authentication failed: {}", err)))
         }
     }
-
-    Ok(())
 }

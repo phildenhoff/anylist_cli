@@ -5,61 +5,84 @@ use anylist_rs::{
 use clap::{Arg, ArgMatches, Command};
 
 use crate::auth::read_tokens;
+use crate::error::CliError;
 
 struct FlagIds;
 impl FlagIds {
     const LIST_NAME: &'static str = "list_name";
 }
 
-fn display_list_items(list_name: &String, lists: Vec<List>) -> () {
-    for list in lists {
-        if list.name.to_lowercase() == list_name.to_lowercase() {
-            // e.g.
-            // Groceries
-            // ---------
-            println!("{}", list.name);
-            for _ in 0..list.name.len() {
-                print!("-");
-            }
-            println!("\n");
+fn display_list_items(list_name: &str, lists: Vec<List>) -> Result<(), CliError> {
+    let list = lists
+        .iter()
+        .find(|list| list.name.eq_ignore_ascii_case(list_name))
+        .ok_or_else(|| CliError::ListNotFound(list_name.to_string()))?;
 
-            let unchecked_items = list.items.iter().filter(|item| !item.is_checked);
-            let mut sorted: Vec<&ListItem> = unchecked_items.collect();
-            sorted.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+    println!("\n{}", list.name);
+    println!("{}", "=".repeat(list.name.len()));
 
-            for item in sorted {
-                // bold, using ANSI escape codes
-                println!("\x1B[1m{}\x1B[0m: {}", item.name, item.details);
+    let mut unchecked_items: Vec<&ListItem> = list
+        .items
+        .iter()
+        .filter(|item| !item.is_checked)
+        .collect();
+
+    unchecked_items.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+
+    if unchecked_items.is_empty() {
+        println!("\n  (no items)");
+    } else {
+        println!();
+        for item in unchecked_items {
+            if item.details.is_empty() {
+                println!("  • {}", item.name);
+            } else {
+                println!("  • {}: {}", item.name, item.details);
             }
         }
     }
+    println!();
+
+    Ok(())
 }
 
-fn display_lists_names(lists: Vec<List>) -> () {
-    for list in lists {
-        println!("{}", list.name);
+fn display_lists_names(lists: Vec<List>) {
+    if lists.is_empty() {
+        println!("No lists found.");
+        return;
     }
+
+    println!("\nYour Lists:");
+    println!("{}", "=".repeat(11));
+    println!();
+    for list in lists {
+        let item_count = list.items.iter().filter(|item| !item.is_checked).count();
+        println!("  • {} ({} items)", list.name, item_count);
+    }
+    println!();
 }
 
-pub fn command() -> Command<'static> {
-    return Command::new("list")
-        .about("Perform actions on lists.")
+pub fn command() -> Command {
+    Command::new("list")
+        .about("View and manage your AnyList lists")
         .long_about(
-            "
-        By default, this command will print out all of your lists and their items.
-
-        You can use the subcommands to perform other actions, like getting the
-        elements of one list, or adding an item to a list.
-        ",
+            "View and manage your AnyList lists.\n\n\
+             By default, this command shows all your lists with item counts.\n\
+             Use subcommands to view specific list details.",
         )
         .subcommand(
             Command::new("get")
-                .about("Get a list.")
-                .arg(Arg::new("list_name").id(FlagIds::LIST_NAME).required(true)),
-        );
+                .about("Display items in a specific list")
+                .arg(
+                    Arg::new(FlagIds::LIST_NAME)
+                        .help("Name of the list to display")
+                        .required(true)
+                        .value_name("LIST_NAME"),
+                ),
+        )
 }
 
-pub async fn exec_command(matches: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
     let tokens = read_tokens()?;
     let client = AnyListClient::from_tokens(tokens)?;
 
@@ -67,9 +90,10 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), Box<dyn std::error
 
     match matches.subcommand() {
         Some(("get", sub_matches)) => {
-            if let Some(list_name) = sub_matches.get_one::<String>(FlagIds::LIST_NAME) {
-                display_list_items(list_name, lists)
-            }
+            let list_name = sub_matches
+                .get_one::<String>(FlagIds::LIST_NAME)
+                .expect("required argument");
+            display_list_items(list_name, lists)?;
         }
         _ => {
             display_lists_names(lists);

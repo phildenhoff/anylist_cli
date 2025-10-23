@@ -1,29 +1,40 @@
 mod auth;
 mod commands;
-
-extern crate clap;
+mod error;
 
 use clap::Command;
 use commands::{list, login};
+use error::CliError;
+use std::process;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut commands = Command::new("anylist")
-        .about("See, update, and add to your AnyList lists.")
+async fn main() {
+    if let Err(err) = run().await {
+        eprintln!("Error: {}", err);
+        process::exit(1);
+    }
+}
+
+async fn run() -> Result<(), CliError> {
+    let matches = Command::new("anylist")
+        .version(env!("CARGO_PKG_VERSION"))
+        .author(env!("CARGO_PKG_AUTHORS"))
+        .about("Manage your AnyList lists from the command line")
+        .subcommand_required(true)
+        .arg_required_else_help(true)
         .subcommand(login::command())
-        .subcommand(list::command());
-    let matches = commands.clone().get_matches();
+        .subcommand(list::command())
+        .get_matches();
 
     match matches.subcommand() {
-        Some(("login", matches)) => {
-            login::exec_command(matches).await?;
+        Some(("login", sub_matches)) => {
+            login::exec_command(sub_matches).await?;
         }
-        Some(("list", matches)) => {
-            list::exec_command(matches).await?;
+        Some(("list", sub_matches)) => {
+            list::exec_command(sub_matches).await?;
         }
-        _ => {
-            commands.print_help()?;
-        }
+        _ => unreachable!("clap should prevent this due to subcommand_required(true)"),
     }
+
     Ok(())
 }

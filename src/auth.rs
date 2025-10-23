@@ -1,47 +1,53 @@
 use anylist_rs::{AnyListClient, SavedTokens};
-use dirs;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-fn get_or_create_config_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let config_dir = dirs::config_dir().unwrap().join("anylist_rs");
+use crate::error::CliError;
+
+fn get_or_create_config_dir() -> Result<PathBuf, CliError> {
+    let config_dir = dirs::config_dir()
+        .ok_or(CliError::ConfigDirNotFound)?
+        .join("anylist_rs");
+
     if !Path::new(&config_dir).exists() {
-        fs::create_dir(&config_dir).unwrap();
+        fs::create_dir_all(&config_dir)
+            .map_err(CliError::ConfigDirCreationFailed)?;
     }
 
     Ok(config_dir)
 }
 
-pub fn read_tokens() -> Result<SavedTokens, Box<dyn std::error::Error>> {
+pub fn read_tokens() -> Result<SavedTokens, CliError> {
     let config_dir = get_or_create_config_dir()?;
     let config_file = config_dir.join("config.json");
 
     if !Path::new(&config_file).exists() {
-        return Err("Config file not found".into());
+        return Err(CliError::ConfigFileNotFound);
     }
 
     let config_contents = fs::read_to_string(&config_file)?;
     let config: serde_json::Value = serde_json::from_str(&config_contents)?;
 
-    let access_token = match config["access_token"].as_str() {
-        Some(id) => id.to_string(),
-        None => return Err("access_token not found in config file".into()),
-    };
+    let access_token = config["access_token"]
+        .as_str()
+        .ok_or_else(|| CliError::ConfigFileInvalid("access_token".to_string()))?
+        .to_string();
 
-    let refresh_token = match config["refresh_token"].as_str() {
-        Some(id) => id.to_string(),
-        None => return Err("refresh_token not found in config file".into()),
-    };
+    let refresh_token = config["refresh_token"]
+        .as_str()
+        .ok_or_else(|| CliError::ConfigFileInvalid("refresh_token".to_string()))?
+        .to_string();
 
-    let user_id = match config["user_id"].as_str() {
-        Some(id) => id.to_string(),
-        None => return Err("user_id not found in config file".into()),
-    };
+    let user_id = config["user_id"]
+        .as_str()
+        .ok_or_else(|| CliError::ConfigFileInvalid("user_id".to_string()))?
+        .to_string();
 
-    let is_premium_user = match config["is_premium"].as_str() {
-        Some(value) => value.parse::<bool>()?,
-        None => return Err("is_premium not found in config file".into()),
-    };
+    let is_premium_user = config["is_premium"]
+        .as_str()
+        .ok_or_else(|| CliError::ConfigFileInvalid("is_premium".to_string()))?
+        .parse::<bool>()
+        .map_err(|_| CliError::ConfigFileInvalid("is_premium (invalid boolean)".to_string()))?;
 
     Ok(SavedTokens {
         access_token,
@@ -51,7 +57,7 @@ pub fn read_tokens() -> Result<SavedTokens, Box<dyn std::error::Error>> {
     })
 }
 
-pub fn save_credentials(client: AnyListClient) -> Result<(), Box<dyn std::error::Error>> {
+pub fn save_credentials(client: AnyListClient) -> Result<(), CliError> {
     let config_dir = get_or_create_config_dir()?;
     let config_file = config_dir.join("config.json");
 
