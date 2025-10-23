@@ -93,6 +93,7 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
             let list_name = sub_matches
                 .get_one::<String>(FlagIds::LIST_NAME)
                 .expect("required argument");
+
             display_list_items(list_name, lists)?;
         }
         _ => {

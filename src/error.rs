@@ -9,7 +9,7 @@ pub enum CliError {
     LoginFailed(String),
     PromptCancelled,
     ListNotFound(String),
-    AnyListError(anylist_rs::Error),
+    AnyListError(anylist_rs::AnyListError),
     IoError(std::io::Error),
     JsonError(serde_json::Error),
 }
@@ -53,8 +53,8 @@ impl fmt::Display for CliError {
 
 impl std::error::Error for CliError {}
 
-impl From<anylist_rs::Error> for CliError {
-    fn from(err: anylist_rs::Error) -> Self {
+impl From<anylist_rs::AnyListError> for CliError {
+    fn from(err: anylist_rs::AnyListError) -> Self {
         CliError::AnyListError(err)
     }
 }
