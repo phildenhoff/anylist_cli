@@ -1,4 +1,4 @@
-use anylist_rs::login::LoginResult;
+use anylist_rs::{AnyListClient, SavedTokens};
 use dirs;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -12,7 +12,7 @@ fn get_or_create_config_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
     Ok(config_dir)
 }
 
-pub fn read_login() -> Result<LoginResult, Box<dyn std::error::Error>> {
+pub fn read_tokens() -> Result<SavedTokens, Box<dyn std::error::Error>> {
     let config_dir = get_or_create_config_dir()?;
     let config_file = config_dir.join("config.json");
 
@@ -23,9 +23,14 @@ pub fn read_login() -> Result<LoginResult, Box<dyn std::error::Error>> {
     let config_contents = fs::read_to_string(&config_file)?;
     let config: serde_json::Value = serde_json::from_str(&config_contents)?;
 
-    let signed_user_id = match config["signed_user_id"].as_str() {
+    let access_token = match config["access_token"].as_str() {
         Some(id) => id.to_string(),
-        None => return Err("signed_user_id not found in config file".into()),
+        None => return Err("access_token not found in config file".into()),
+    };
+
+    let refresh_token = match config["refresh_token"].as_str() {
+        Some(id) => id.to_string(),
+        None => return Err("refresh_token not found in config file".into()),
     };
 
     let user_id = match config["user_id"].as_str() {
@@ -38,14 +43,15 @@ pub fn read_login() -> Result<LoginResult, Box<dyn std::error::Error>> {
         None => return Err("is_premium not found in config file".into()),
     };
 
-    Ok(LoginResult {
-        credential: signed_user_id,
+    Ok(SavedTokens {
+        access_token,
+        refresh_token,
         user_id,
         is_premium_user,
     })
 }
 
-pub fn save_login(login_result: LoginResult) -> Result<(), Box<dyn std::error::Error>> {
+pub fn save_credentials(client: AnyListClient) -> Result<(), Box<dyn std::error::Error>> {
     let config_dir = get_or_create_config_dir()?;
     let config_file = config_dir.join("config.json");
 
@@ -56,9 +62,12 @@ pub fn save_login(login_result: LoginResult) -> Result<(), Box<dyn std::error::E
         serde_json::Value::Object(serde_json::Map::new())
     };
 
-    config["signed_user_id"] = serde_json::Value::String(login_result.credential.to_string());
-    config["user_id"] = serde_json::Value::String(login_result.user_id.to_string());
-    config["is_premium"] = serde_json::Value::String(login_result.is_premium_user.to_string());
+    let tokens = client.export_tokens()?;
+
+    config["access_token"] = serde_json::Value::String(tokens.access_token.to_string());
+    config["refresh_token"] = serde_json::Value::String(tokens.refresh_token.to_string());
+    config["user_id"] = serde_json::Value::String(tokens.user_id.to_string());
+    config["is_premium"] = serde_json::Value::String(tokens.is_premium_user.to_string());
 
     let config_contents = serde_json::to_string(&config)?;
     fs::write(&config_file, config_contents)?;

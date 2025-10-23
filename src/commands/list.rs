@@ -4,7 +4,7 @@ use anylist_rs::{
 };
 use clap::{Arg, ArgMatches, Command};
 
-use crate::auth::read_login;
+use crate::auth::read_tokens;
 
 struct FlagIds;
 impl FlagIds {
@@ -60,9 +60,8 @@ pub fn command() -> Command<'static> {
 }
 
 pub async fn exec_command(matches: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
-    let login = read_login()?;
-    let client =
-        AnyListClient::from_credentials(login.credential, login.user_id, login.is_premium_user);
+    let tokens = read_tokens()?;
+    let client = AnyListClient::from_tokens(tokens)?;
 
     let lists = client.get_lists().await?;
 
