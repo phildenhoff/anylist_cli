@@ -4,14 +4,19 @@ mod commands;
 extern crate clap;
 
 use clap::Command;
-use commands::{list, login};
+use commands::{categories, items, list, login, meal_plans, stores};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut commands = Command::new("anylist")
-        .about("See, update, and add to your AnyList lists.")
+        .about("Manage your AnyList shopping lists, items, meal plans, and more.")
+        .version(env!("CARGO_PKG_VERSION"))
         .subcommand(login::command())
-        .subcommand(list::command());
+        .subcommand(list::command())
+        .subcommand(items::command())
+        .subcommand(stores::command())
+        .subcommand(categories::command())
+        .subcommand(meal_plans::command());
     let matches = commands.clone().get_matches();
 
     match matches.subcommand() {
@@ -20,6 +25,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some(("list", matches)) => {
             list::exec_command(matches).await?;
+        }
+        Some(("item", matches)) => {
+            items::exec_command(matches).await?;
+        }
+        Some(("store", matches)) => {
+            stores::exec_command(matches).await?;
+        }
+        Some(("category", matches)) => {
+            categories::exec_command(matches).await?;
+        }
+        Some(("meal-plan", matches)) => {
+            meal_plans::exec_command(matches).await?;
         }
         _ => {
             commands.print_help()?;
