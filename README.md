@@ -1,16 +1,7 @@
-# AnyList CLI
+# anylist_cli
 
-A command-line interface for managing your [AnyList](https://www.anylist.com/) shopping lists, items, meal plans, stores, and categories.
-
-## Features
-
-This CLI provides complete access to the AnyList API, allowing you to:
-
-- **Manage Shopping Lists**: View, create, rename, and delete shopping lists
-- **Manage List Items**: Add, update, delete, check/uncheck items with quantities, details, and categories
-- **Manage Stores**: Create, update, and delete store associations for your lists
-- **Manage Categories**: Create, rename, and delete item categories
-- **Manage Meal Plans**: View, create, update, and delete meal plan events
+An unofficial command-line utility for manage your
+[AnyList](https://www.anylist.com/) shopping lists, items, meal plans, stores, and categories.
 
 ## Installation
 
@@ -18,16 +9,6 @@ This CLI provides complete access to the AnyList API, allowing you to:
 
 - Rust toolchain (1.70+)
 - Protocol Buffers compiler (`protoc`)
-
-On Ubuntu/Debian:
-```bash
-sudo apt-get install protobuf-compiler
-```
-
-On macOS:
-```bash
-brew install protobuf
-```
 
 ### Building
 
@@ -148,7 +129,9 @@ anylist item add --help
 
 ## Configuration
 
-Credentials are stored in `~/.config/anylist_rs/config.json` after logging in.
+Credentials are stored in `~/.config/anylist_rs/config.json` after logging in on
+Linux systems, and at
+`/Users/<you>/Library/Application Support/anylist_rs/config.json` on macOS.
 
 ## Development
 
@@ -170,10 +153,6 @@ src/
     └── meal_plans.rs    # Meal plan commands
 ```
 
-## License
-
-See LICENSE file for details.
-
 ## Disclaimer
 
-This is an unofficial tool and is not affiliated with or endorsed by AnyList.
+This is unofficial: please do not bother the AnyList folks with this tool.
