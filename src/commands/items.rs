@@ -7,6 +7,8 @@ use crate::error::CliError;
 pub fn command() -> Command {
     Command::new("item")
         .about("Manage items in shopping lists")
+        .subcommand_required(true)
+        .arg_required_else_help(true)
         .subcommand(
             Command::new("add")
                 .about("Add an item to a list")
@@ -146,9 +148,7 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
 
             println!("Unchecked item in list '{}'", list.name);
         }
-        _ => {
-            println!("Unknown item command. Use --help for usage.");
-        }
+        _ => unreachable!("subcommand_required prevents this"),
     }
 
     Ok(())

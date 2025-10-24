@@ -7,6 +7,13 @@ use crate::error::CliError;
 pub fn command() -> Command {
     Command::new("store")
         .about("Manage stores for lists")
+        .subcommand_required(true)
+        .arg_required_else_help(true)
+        .subcommand(
+            Command::new("list")
+                .about("List all stores for a list")
+                .arg(Arg::new("list").required(true).help("List name or ID")),
+        )
         .subcommand(
             Command::new("add")
                 .about("Add a store to a list")
@@ -33,6 +40,21 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
     let client = AnyListClient::from_tokens(tokens)?;
 
     match matches.subcommand() {
+        Some(("list", sub_matches)) => {
+            let list_name = sub_matches.get_one::<String>("list").unwrap();
+
+            let list = client.get_list_by_name(list_name).await?;
+            let stores = client.get_stores_for_list(&list.id).await?;
+
+            if stores.is_empty() {
+                println!("No stores found for list '{}'", list.name);
+            } else {
+                println!("Stores for list '{}':", list.name);
+                for store in stores {
+                    println!("  {} - {}", store.id, store.name);
+                }
+            }
+        }
         Some(("add", sub_matches)) => {
             let list_name = sub_matches.get_one::<String>("list").unwrap();
             let name = sub_matches.get_one::<String>("name").unwrap();
@@ -61,9 +83,7 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
 
             println!("Deleted store from list '{}'", list.name);
         }
-        _ => {
-            println!("Unknown store command. Use --help for usage.");
-        }
+        _ => unreachable!("subcommand_required prevents this"),
     }
 
     Ok(())

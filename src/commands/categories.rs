@@ -7,6 +7,8 @@ use crate::error::CliError;
 pub fn command() -> Command {
     Command::new("category")
         .about("Manage categories for list items")
+        .subcommand_required(true)
+        .arg_required_else_help(true)
         .subcommand(
             Command::new("add")
                 .about("Add a category to a list")
@@ -80,9 +82,7 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
 
             println!("Deleted category from list '{}'", list.name);
         }
-        _ => {
-            println!("Unknown category command. Use --help for usage.");
-        }
+        _ => unreachable!("subcommand_required prevents this"),
     }
 
     Ok(())

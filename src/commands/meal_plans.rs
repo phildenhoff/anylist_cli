@@ -7,6 +7,8 @@ use crate::error::CliError;
 pub fn command() -> Command {
     Command::new("meal-plan")
         .about("Manage meal plan events")
+        .subcommand_required(true)
+        .arg_required_else_help(true)
         .subcommand(
             Command::new("list")
                 .about("List meal plan events in a date range")
@@ -154,9 +156,7 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
 
             println!("Deleted meal plan event");
         }
-        _ => {
-            println!("Unknown meal-plan command. Use --help for usage.");
-        }
+        _ => unreachable!("subcommand_required prevents this"),
     }
 
     Ok(())
