@@ -55,7 +55,18 @@ impl std::error::Error for CliError {}
 
 impl From<anylist_rs::AnyListError> for CliError {
     fn from(err: anylist_rs::AnyListError) -> Self {
-        CliError::AnyListError(err)
+        match err {
+            anylist_rs::AnyListError::NotFound(msg) if msg.contains("List with name") => {
+                // Extract list name from message like "List with name 'Foo' not found"
+                let list_name = msg
+                    .split('\'')
+                    .nth(1)
+                    .unwrap_or("unknown")
+                    .to_string();
+                CliError::ListNotFound(list_name)
+            }
+            _ => CliError::AnyListError(err),
+        }
     }
 }
 
