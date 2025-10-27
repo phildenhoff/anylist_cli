@@ -2,8 +2,9 @@ use anylist_rs::AnyListClient;
 use clap::{Arg, ArgMatches, Command};
 
 use crate::auth::read_tokens;
+use crate::error::CliError;
 
-pub fn command() -> Command<'static> {
+pub fn command() -> Command {
     Command::new("category")
         .about("Manage categories for list items")
         .subcommand(
@@ -37,7 +38,7 @@ pub fn command() -> Command<'static> {
         )
 }
 
-pub async fn exec_command(matches: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
     let tokens = read_tokens()?;
     let client = AnyListClient::from_tokens(tokens)?;
 

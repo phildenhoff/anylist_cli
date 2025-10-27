@@ -2,8 +2,9 @@ use anylist_rs::AnyListClient;
 use clap::{Arg, ArgMatches, Command};
 
 use crate::auth::read_tokens;
+use crate::error::CliError;
 
-pub fn command() -> Command<'static> {
+pub fn command() -> Command {
     Command::new("meal-plan")
         .about("Manage meal plan events")
         .subcommand(
@@ -29,21 +30,18 @@ pub fn command() -> Command<'static> {
                     Arg::new("recipe_id")
                         .short('r')
                         .long("recipe-id")
-                        .takes_value(true)
                         .help("Recipe ID"),
                 )
                 .arg(
                     Arg::new("title")
                         .short('t')
                         .long("title")
-                        .takes_value(true)
                         .help("Event title (for non-recipe events)"),
                 )
                 .arg(
                     Arg::new("label_id")
                         .short('l')
                         .long("label-id")
-                        .takes_value(true)
                         .help("Meal label ID (Breakfast, Lunch, Dinner, etc.)"),
                 ),
         )
@@ -57,21 +55,18 @@ pub fn command() -> Command<'static> {
                     Arg::new("recipe_id")
                         .short('r')
                         .long("recipe-id")
-                        .takes_value(true)
                         .help("New recipe ID"),
                 )
                 .arg(
                     Arg::new("title")
                         .short('t')
                         .long("title")
-                        .takes_value(true)
                         .help("New event title"),
                 )
                 .arg(
                     Arg::new("label_id")
                         .short('l')
                         .long("label-id")
-                        .takes_value(true)
                         .help("New meal label ID"),
                 ),
         )
@@ -83,7 +78,7 @@ pub fn command() -> Command<'static> {
         )
 }
 
-pub async fn exec_command(matches: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
     let tokens = read_tokens()?;
     let client = AnyListClient::from_tokens(tokens)?;
 

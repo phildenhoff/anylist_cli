@@ -2,8 +2,9 @@ use anylist_rs::AnyListClient;
 use clap::{Arg, ArgMatches, Command};
 
 use crate::auth::read_tokens;
+use crate::error::CliError;
 
-pub fn command() -> Command<'static> {
+pub fn command() -> Command {
     Command::new("item")
         .about("Manage items in shopping lists")
         .subcommand(
@@ -15,21 +16,18 @@ pub fn command() -> Command<'static> {
                     Arg::new("quantity")
                         .short('q')
                         .long("quantity")
-                        .takes_value(true)
                         .help("Item quantity (e.g., '2 lbs', '500g')"),
                 )
                 .arg(
                     Arg::new("details")
                         .short('d')
                         .long("details")
-                        .takes_value(true)
                         .help("Additional details or notes"),
                 )
                 .arg(
                     Arg::new("category")
                         .short('c')
                         .long("category")
-                        .takes_value(true)
                         .help("Category name"),
                 ),
         )
@@ -43,21 +41,18 @@ pub fn command() -> Command<'static> {
                     Arg::new("quantity")
                         .short('q')
                         .long("quantity")
-                        .takes_value(true)
                         .help("New quantity"),
                 )
                 .arg(
                     Arg::new("details")
                         .short('d')
                         .long("details")
-                        .takes_value(true)
                         .help("New details"),
                 )
                 .arg(
                     Arg::new("category")
                         .short('c')
                         .long("category")
-                        .takes_value(true)
                         .help("New category"),
                 ),
         )
@@ -81,7 +76,7 @@ pub fn command() -> Command<'static> {
         )
 }
 
-pub async fn exec_command(matches: &ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
     let tokens = read_tokens()?;
     let client = AnyListClient::from_tokens(tokens)?;
 
