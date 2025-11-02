@@ -3,7 +3,7 @@ mod commands;
 mod error;
 
 use clap::Command;
-use commands::{categories, items, list, login, meal_plans, stores};
+use commands::{categories, items, list, login, meal_plans, stores, tail};
 use error::CliError;
 use std::process;
 
@@ -28,6 +28,7 @@ async fn run() -> Result<(), CliError> {
         .subcommand(stores::command())
         .subcommand(categories::command())
         .subcommand(meal_plans::command())
+        .subcommand(tail::command())
         .get_matches();
 
     match matches.subcommand() {
@@ -48,6 +49,9 @@ async fn run() -> Result<(), CliError> {
         }
         Some(("meal-plan", sub_matches)) => {
             meal_plans::exec_command(sub_matches).await?;
+        }
+        Some(("tail", sub_matches)) => {
+            tail::exec_command(sub_matches).await?;
         }
         _ => unreachable!("clap should prevent this due to subcommand_required(true)"),
     }

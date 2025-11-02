@@ -19,7 +19,7 @@ fn display_list_items(list: &List) {
         sorted.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
 
         for item in sorted {
-            print!("  [ ] \x1B[1m{}\x1B[0m", item.name);
+            print!("  [ ] \x1B[1m{}\x1B[0m ({})", item.name, item.id);
             if let Some(qty) = &item.quantity {
                 print!(" ({})", qty);
             }
