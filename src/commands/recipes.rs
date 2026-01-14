@@ -76,12 +76,12 @@ fn display_recipe_detail(recipe: &Recipe) {
         println!("Servings: {}", servings);
     }
 
-    // Display times
+    // Display times (convert from seconds to minutes)
     if let Some(prep_time) = recipe.prep_time {
-        println!("Prep Time: {} minutes", prep_time);
+        println!("Prep Time: {} minutes", prep_time / 60);
     }
     if let Some(cook_time) = recipe.cook_time {
-        println!("Cook Time: {} minutes", cook_time);
+        println!("Cook Time: {} minutes", cook_time / 60);
     }
 
     // Display note
