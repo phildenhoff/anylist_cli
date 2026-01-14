@@ -3,7 +3,7 @@ mod commands;
 mod error;
 
 use clap::Command;
-use commands::{categories, items, list, login, meal_plans, stores, tail};
+use commands::{categories, items, list, login, meal_plans, recipes, stores, tail};
 use error::CliError;
 use std::process;
 
@@ -19,7 +19,7 @@ async fn run() -> Result<(), CliError> {
     let matches = Command::new("anylist")
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
-        .about("Manage your AnyList shopping lists, items, meal plans, and more.")
+        .about("Manage your AnyList shopping lists, items, recipes, meal plans, and more.")
         .subcommand_required(true)
         .arg_required_else_help(true)
         .subcommand(login::command())
@@ -28,6 +28,7 @@ async fn run() -> Result<(), CliError> {
         .subcommand(stores::command())
         .subcommand(categories::command())
         .subcommand(meal_plans::command())
+        .subcommand(recipes::command())
         .subcommand(tail::command())
         .get_matches();
 
@@ -49,6 +50,9 @@ async fn run() -> Result<(), CliError> {
         }
         Some(("meal-plan", sub_matches)) => {
             meal_plans::exec_command(sub_matches).await?;
+        }
+        Some(("recipe", sub_matches)) => {
+            recipes::exec_command(sub_matches).await?;
         }
         Some(("tail", sub_matches)) => {
             tail::exec_command(sub_matches).await?;

@@ -1,7 +1,7 @@
 # anylist_cli
 
 An unofficial command-line utility for manage your
-[AnyList](https://www.anylist.com/) shopping lists, items, meal plans, stores, and categories.
+[AnyList](https://www.anylist.com/) shopping lists, items, recipes, meal plans, stores, and categories.
 
 ## Installation
 
@@ -116,6 +116,20 @@ anylist meal-plan update CALENDAR_ID EVENT_ID 2024-01-17 --title "Updated dinner
 anylist meal-plan delete CALENDAR_ID EVENT_ID
 ```
 
+### Recipes
+
+```bash
+# List all recipes
+anylist recipe list
+
+# View a specific recipe by name or ID
+anylist recipe get "Pasta Carbonara"
+anylist recipe get RECIPE_ID
+
+# Default: list all recipes
+anylist recipe
+```
+
 ## Getting Help
 
 Use `--help` with any command to see available options:
@@ -150,6 +164,7 @@ src/
     ├── items.rs         # Item management commands
     ├── stores.rs        # Store management commands
     ├── categories.rs    # Category management commands
+    ├── recipes.rs       # Recipe management commands
     └── meal_plans.rs    # Meal plan commands
 ```
 
