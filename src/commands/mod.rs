@@ -3,5 +3,6 @@ pub mod items;
 pub mod list;
 pub mod login;
 pub mod meal_plans;
+pub mod recipes;
 pub mod stores;
 pub mod tail;
