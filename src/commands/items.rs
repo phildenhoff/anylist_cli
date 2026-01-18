@@ -92,17 +92,17 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
 
             let list = client.get_list_by_name(list_name).await?;
             let item = client
-                .add_item_with_details(&list.id, name, quantity, details, category)
+                .add_item_with_details(&list.id(), name, quantity, details, category)
                 .await?;
 
-            println!("Added item '{}' to list '{}'", item.name, list.name);
-            if let Some(q) = &item.quantity {
+            println!("Added item '{}' to list '{}'", item.name(), list.name());
+            if let Some(q) = &item.quantity() {
                 println!("  Quantity: {}", q);
             }
-            if !item.details.is_empty() {
-                println!("  Details: {}", item.details);
+            if !item.details().is_empty() {
+                println!("  Details: {}", item.details());
             }
-            if let Some(c) = &item.category {
+            if let Some(c) = &item.category() {
                 println!("  Category: {}", c);
             }
         }
@@ -116,37 +116,37 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
 
             let list = client.get_list_by_name(list_name).await?;
             client
-                .update_item(&list.id, item_id, name, quantity, details, category)
+                .update_item(&list.id(), item_id, name, quantity, details, category)
                 .await?;
 
-            println!("Updated item '{}' in list '{}'", name, list.name);
+            println!("Updated item '{}' in list '{}'", name, list.name());
         }
         Some(("delete", sub_matches)) => {
             let list_name = sub_matches.get_one::<String>("list").unwrap();
             let item_id = sub_matches.get_one::<String>("item_id").unwrap();
 
             let list = client.get_list_by_name(list_name).await?;
-            client.delete_item(&list.id, item_id).await?;
+            client.delete_item(&list.id(), item_id).await?;
 
-            println!("Deleted item from list '{}'", list.name);
+            println!("Deleted item from list '{}'", list.name());
         }
         Some(("check", sub_matches)) => {
             let list_name = sub_matches.get_one::<String>("list").unwrap();
             let item_id = sub_matches.get_one::<String>("item_id").unwrap();
 
             let list = client.get_list_by_name(list_name).await?;
-            client.cross_off_item(&list.id, item_id).await?;
+            client.cross_off_item(&list.id(), item_id).await?;
 
-            println!("Checked off item in list '{}'", list.name);
+            println!("Checked off item in list '{}'", list.name());
         }
         Some(("uncheck", sub_matches)) => {
             let list_name = sub_matches.get_one::<String>("list").unwrap();
             let item_id = sub_matches.get_one::<String>("item_id").unwrap();
 
             let list = client.get_list_by_name(list_name).await?;
-            client.uncheck_item(&list.id, item_id).await?;
+            client.uncheck_item(&list.id(), item_id).await?;
 
-            println!("Unchecked item in list '{}'", list.name);
+            println!("Unchecked item in list '{}'", list.name());
         }
         _ => unreachable!("subcommand_required prevents this"),
     }

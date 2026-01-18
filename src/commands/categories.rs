@@ -52,12 +52,12 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
 
             let list = client.get_list_by_name(list_name).await?;
             let category = client
-                .create_category(&list.id, category_group_id, name)
+                .create_category(&list.id(), category_group_id, name)
                 .await?;
 
             println!(
                 "Created category '{}' in list '{}'",
-                category.name, list.name
+                category.name(), list.name()
             );
         }
         Some(("rename", sub_matches)) => {
@@ -68,19 +68,19 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
 
             let list = client.get_list_by_name(list_name).await?;
             client
-                .rename_category(&list.id, category_group_id, category_id, name)
+                .rename_category(&list.id(), category_group_id, category_id, name)
                 .await?;
 
-            println!("Renamed category to '{}' in list '{}'", name, list.name);
+            println!("Renamed category to '{}' in list '{}'", name, list.name());
         }
         Some(("delete", sub_matches)) => {
             let list_name = sub_matches.get_one::<String>("list").unwrap();
             let category_id = sub_matches.get_one::<String>("category_id").unwrap();
 
             let list = client.get_list_by_name(list_name).await?;
-            client.delete_category(&list.id, category_id).await?;
+            client.delete_category(&list.id(), category_id).await?;
 
-            println!("Deleted category from list '{}'", list.name);
+            println!("Deleted category from list '{}'", list.name());
         }
         _ => unreachable!("subcommand_required prevents this"),
     }

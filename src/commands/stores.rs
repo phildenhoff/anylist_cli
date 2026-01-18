@@ -44,14 +44,14 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
             let list_name = sub_matches.get_one::<String>("list").unwrap();
 
             let list = client.get_list_by_name(list_name).await?;
-            let stores = client.get_stores_for_list(&list.id).await?;
+            let stores = client.get_stores_for_list(&list.id()).await?;
 
             if stores.is_empty() {
-                println!("No stores found for list '{}'", list.name);
+                println!("No stores found for list '{}'", list.name());
             } else {
-                println!("Stores for list '{}':", list.name);
+                println!("Stores for list '{}':", list.name());
                 for store in stores {
-                    println!("  {} - {}", store.id, store.name);
+                    println!("  {} - {}", store.id(), store.name());
                 }
             }
         }
@@ -60,9 +60,9 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
             let name = sub_matches.get_one::<String>("name").unwrap();
 
             let list = client.get_list_by_name(list_name).await?;
-            let store = client.create_store(&list.id, name).await?;
+            let store = client.create_store(&list.id(), name).await?;
 
-            println!("Created store '{}' for list '{}'", store.name, list.name);
+            println!("Created store '{}' for list '{}'", store.name(), list.name());
         }
         Some(("update", sub_matches)) => {
             let list_name = sub_matches.get_one::<String>("list").unwrap();
@@ -70,18 +70,18 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
             let name = sub_matches.get_one::<String>("name").unwrap();
 
             let list = client.get_list_by_name(list_name).await?;
-            client.update_store(&list.id, store_id, name).await?;
+            client.update_store(&list.id(), store_id, name).await?;
 
-            println!("Updated store to '{}' in list '{}'", name, list.name);
+            println!("Updated store to '{}' in list '{}'", name, list.name());
         }
         Some(("delete", sub_matches)) => {
             let list_name = sub_matches.get_one::<String>("list").unwrap();
             let store_id = sub_matches.get_one::<String>("store_id").unwrap();
 
             let list = client.get_list_by_name(list_name).await?;
-            client.delete_store(&list.id, store_id).await?;
+            client.delete_store(&list.id(), store_id).await?;
 
-            println!("Deleted store from list '{}'", list.name);
+            println!("Deleted store from list '{}'", list.name());
         }
         _ => unreachable!("subcommand_required prevents this"),
     }
