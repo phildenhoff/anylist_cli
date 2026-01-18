@@ -97,20 +97,20 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
                 println!("Meal plan events ({} to {}):", start_date, end_date);
                 println!();
                 for event in events {
-                    println!("Date: {}", event.date);
-                    if let Some(title) = &event.title {
+                    println!("Date: {}", event.date());
+                    if let Some(title) = &event.title() {
                         println!("  Title: {}", title);
                     }
-                    if let Some(recipe_id) = &event.recipe_id {
+                    if let Some(recipe_id) = &event.recipe_id() {
                         println!("  Recipe ID: {}", recipe_id);
                     }
-                    if let Some(label_id) = &event.label_id {
+                    if let Some(label_id) = &event.label_id() {
                         println!("  Label ID: {}", label_id);
                     }
-                    if let Some(details) = &event.details {
+                    if let Some(details) = &event.details() {
                         println!("  Details: {}", details);
                     }
-                    println!("  Event ID: {}", event.id);
+                    println!("  Event ID: {}", event.id());
                     println!();
                 }
             }
@@ -126,11 +126,11 @@ pub async fn exec_command(matches: &ArgMatches) -> Result<(), CliError> {
                 .create_meal_plan_event(calendar_id, date, recipe_id, title, label_id)
                 .await?;
 
-            println!("Created meal plan event for {}", event.date);
-            if let Some(t) = &event.title {
+            println!("Created meal plan event for {}", event.date());
+            if let Some(t) = &event.title() {
                 println!("  Title: {}", t);
             }
-            if let Some(r) = &event.recipe_id {
+            if let Some(r) = &event.recipe_id() {
                 println!("  Recipe ID: {}", r);
             }
         }

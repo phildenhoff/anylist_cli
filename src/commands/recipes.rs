@@ -16,18 +16,18 @@ fn display_recipe_list(recipes: Vec<Recipe>) {
 
     // Sort recipes by name
     let mut sorted = recipes;
-    sorted.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+    sorted.sort_by(|a, b| a.name().to_lowercase().cmp(&b.name().to_lowercase()));
 
     for recipe in sorted {
-        let ingredient_count = recipe.ingredients.len();
-        let step_count = recipe.preparation_steps.len();
-        print!("  \x1B[1m{}\x1B[0m", recipe.name);
+        let ingredient_count = recipe.ingredients().len();
+        let step_count = recipe.preparation_steps().len();
+        print!("  \x1B[1m{}\x1B[0m", recipe.name());
 
         if ingredient_count > 0 || step_count > 0 {
             print!(" ({} ingredients, {} steps)", ingredient_count, step_count);
         }
 
-        if let Some(rating) = recipe.rating {
+        if let Some(rating) = recipe.rating() {
             let stars = "★".repeat(rating as usize);
             print!(" {}", stars);
         }
@@ -38,69 +38,69 @@ fn display_recipe_list(recipes: Vec<Recipe>) {
 }
 
 fn display_ingredient(ingredient: &Ingredient) {
-    print!("    • {}", ingredient.name);
-    if let Some(qty) = &ingredient.quantity {
+    print!("    • {}", ingredient.name());
+    if let Some(qty) = &ingredient.quantity() {
         print!(": {}", qty);
     }
-    if let Some(note) = &ingredient.note {
+    if let Some(note) = &ingredient.note() {
         print!(" ({})", note);
     }
     println!();
 }
 
 fn display_recipe_detail(recipe: &Recipe) {
-    println!("\n\x1B[1m{}\x1B[0m", recipe.name);
-    println!("{}", "=".repeat(recipe.name.len()));
+    println!("\n\x1B[1m{}\x1B[0m", recipe.name());
+    println!("{}", "=".repeat(recipe.name().len()));
     println!();
 
     // Display ID
-    println!("ID: {}", recipe.id);
+    println!("ID: {}", recipe.id());
 
     // Display rating
-    if let Some(rating) = recipe.rating {
+    if let Some(rating) = recipe.rating() {
         let stars = "★".repeat(rating as usize);
         println!("Rating: {}", stars);
     }
 
     // Display source
-    if let Some(source_name) = &recipe.source_name {
+    if let Some(source_name) = &recipe.source_name() {
         print!("Source: {}", source_name);
-        if let Some(source_url) = &recipe.source_url {
+        if let Some(source_url) = &recipe.source_url() {
             print!(" ({})", source_url);
         }
         println!();
     }
 
     // Display servings
-    if let Some(servings) = &recipe.servings {
+    if let Some(servings) = &recipe.servings() {
         println!("Servings: {}", servings);
     }
 
     // Display times (convert from seconds to minutes)
-    if let Some(prep_time) = recipe.prep_time {
+    if let Some(prep_time) = recipe.prep_time() {
         println!("Prep Time: {} minutes", prep_time / 60);
     }
-    if let Some(cook_time) = recipe.cook_time {
+    if let Some(cook_time) = recipe.cook_time() {
         println!("Cook Time: {} minutes", cook_time / 60);
     }
 
     // Display note
-    if let Some(note) = &recipe.note {
+    if let Some(note) = &recipe.note() {
         println!("\nNote: {}", note);
     }
 
     // Display ingredients
-    if !recipe.ingredients.is_empty() {
+    if !recipe.ingredients().is_empty() {
         println!("\n\x1B[1mIngredients:\x1B[0m");
-        for ingredient in &recipe.ingredients {
-            display_ingredient(ingredient);
+        for ingredient in recipe.ingredients().to_owned().into_iter() {
+            display_ingredient(&ingredient);
         }
     }
 
     // Display preparation steps
-    if !recipe.preparation_steps.is_empty() {
+    if !recipe.preparation_steps().is_empty() {
         println!("\n\x1B[1mPreparation:\x1B[0m");
-        for (i, step) in recipe.preparation_steps.iter().enumerate() {
+        for (i, step) in recipe.preparation_steps().iter().enumerate() {
             println!("  {}. {}", i + 1, step);
         }
     }

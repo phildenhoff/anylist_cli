@@ -9,7 +9,7 @@ name = "anylist"
 path = "src/main.rs"
 
 [dependencies]
-anylist_rs = { path = "../anylist_rs" }
+anylist_rs = "0.3.0"
 clap = { version = "4.5", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
 inquire = "0.6.2"
