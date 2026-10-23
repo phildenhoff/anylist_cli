@@ -121,6 +121,7 @@ async fn monitor_events(sync: &mut anylist_rs::RealtimeSync) -> Result<(), CliEr
                     ConnectionState::Connected | ConnectionState::Connecting => {
                         // All good, continue
                     }
+                    _ => {}
                 }
             }
         }

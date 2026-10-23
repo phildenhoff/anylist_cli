@@ -49,12 +49,12 @@ pub fn read_tokens() -> Result<SavedTokens, CliError> {
         .parse::<bool>()
         .map_err(|_| CliError::ConfigFileInvalid("is_premium (invalid boolean)".to_string()))?;
 
-    Ok(SavedTokens {
+    Ok(SavedTokens::new(
         access_token,
         refresh_token,
         user_id,
         is_premium_user,
-    })
+    ))
 }
 
 pub fn save_credentials(client: AnyListClient) -> Result<(), CliError> {
@@ -70,10 +70,10 @@ pub fn save_credentials(client: AnyListClient) -> Result<(), CliError> {
 
     let tokens = client.export_tokens()?;
 
-    config["access_token"] = serde_json::Value::String(tokens.access_token.to_string());
-    config["refresh_token"] = serde_json::Value::String(tokens.refresh_token.to_string());
-    config["user_id"] = serde_json::Value::String(tokens.user_id.to_string());
-    config["is_premium"] = serde_json::Value::String(tokens.is_premium_user.to_string());
+    config["access_token"] = serde_json::Value::String(tokens.access_token().to_string());
+    config["refresh_token"] = serde_json::Value::String(tokens.refresh_token().to_string());
+    config["user_id"] = serde_json::Value::String(tokens.user_id().to_string());
+    config["is_premium"] = serde_json::Value::String(tokens.is_premium_user().to_string());
 
     let config_contents = serde_json::to_string(&config)?;
     fs::write(&config_file, config_contents)?;
